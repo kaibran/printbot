@@ -12,7 +12,7 @@ module i2c_master(
     //output wire i2c_sda,
     //input wire i2c_sda_in,
 
-    output reg i2c_scl,
+    output wire i2c_scl,
     output wire ready,
     output reg data_ready, // flag to say data is ready to read
     output reg data_req, // flag to request more data to write
@@ -52,9 +52,26 @@ module i2c_master(
     wire reg i2c_sda_in;
     wire reg i2c_sda;
 
-    wire reg i2c_sda_save;
+    reg i2c_sda_save;
 
-    inst tri(.pin(SDAA), .oe(i2c_sda_save), .din(i2c_sda), .dout(i2c_sda_in));
+  //  inst tri(.pin(SDAA), .oe(i2c_sda_save), .din(i2c_sda), .dout(i2c_sda_in));
+
+  /*  module inst (
+     inout pin,
+     input oe,
+     input din,
+     output dout
+    );*/
+       SB_IO #(
+           .PIN_TYPE(6'b1010_01),
+           .PULLUP(1'b0)
+       ) triState (
+           .PACKAGE_PIN(SDAA),
+           .OUTPUT_ENABLE(!i2c_sda_save),
+           .D_OUT_0(i2c_sda),
+           .D_IN_0(i2c_sda_in)
+       );
+  //  endmodule
 
     initial begin
         state = STATE_IDLE;
@@ -67,7 +84,7 @@ module i2c_master(
     assign ready = (reset == 0) && (state == STATE_IDLE) ? 1 : 0;
 //    assign i2c_scl = (i2c_scl_enable == 0) ? 1 : ~clk;
     assign i2c_sda = 0 ;//(i2c_sda_tri == 1) ? 'bz : 0;
-    assign i2c_scl = i2c_scl_reg;
+    assign i2c_scl = (i2c_scl_reg) ? 1 : 0;
 
 always @ ( negedge clk ) begin
   i2c_sda_save = i2c_sda_tri;

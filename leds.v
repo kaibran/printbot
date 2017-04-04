@@ -145,7 +145,8 @@ always @ ( posedge clk_i2c/*CLK*/, posedge reset) begin
                   end
                   STATE_WAIT: begin                 //Wait a bit befor the next read begin
                     delay_count = delay_count + 1;
-                    if(delay_count > 100)begin
+                        adc_start = 0;
+                    if(delay_count > 500)begin
                         state_gen <= STATE_START_TWO; //goes directly to the read command.
                         delay_count = 0;
                         end
